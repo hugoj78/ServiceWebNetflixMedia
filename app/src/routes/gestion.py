@@ -15,11 +15,11 @@ router = APIRouter(
     responses={404: {"description": "Not found"}},
 )
 
-@router.get(
+@router.post(
     "/{id}",
     description="Get a list of all Media and Poster for a defined User",
 )
-def get_gestion_medias(id: int):
+def post_gestion_medias(id: int):
 
     headers = {'accept': 'application/json'}
     url = os.environ['COMPTE_URL']
