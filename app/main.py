@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.routes.medias import router as media
+from src.routes.gestion import router as gestion
 from config.openapi import tags_metadata
 import os
 
@@ -21,3 +22,4 @@ app.add_middleware(
 )
 
 app.include_router(media)
+app.include_router(gestion)

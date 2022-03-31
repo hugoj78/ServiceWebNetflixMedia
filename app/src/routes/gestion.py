@@ -9,8 +9,6 @@ from sqlalchemy import func, select, and_
 import json
 import os
 
-project0api_url = os.environ['PROJECT_API_URL']
-
 router = APIRouter(
     prefix="/gestion",
     tags=["gestion"],
@@ -18,10 +16,22 @@ router = APIRouter(
 )
 
 @router.get(
-    "",
-    response_model=List[Media],
-    description="Get a list of all posters",
+    "/{id}",
+    description="Get a list of all Media and Poster for a defined User",
 )
-def get_gestion_medias():
-    medias = conn.execute(medias.select()).fetchall()
-    print(medias)
+def get_gestion_medias(id: int):
+
+    headers = {'accept': 'application/json'}
+    url = os.environ['COMPTE_URL']
+    base_url = f"{url}/users/{id}"
+    print(base_url)
+    try:
+        request = requests.get(url=base_url, headers=headers)
+        print(request.status_code)
+        print("ICI")
+        print(request.text)
+    except Exception as e:
+        print(e)
+    
+    return {}
+

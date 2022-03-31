@@ -29,15 +29,6 @@ def get_medias():
 def get_media(id: str):
     return conn.execute(medias.select().where(medias.c.id == id)).first()
 
-
-
-    Column("title", Text),
-    Column("kind", Text),
-    Column("category", Text),
-    Column("content", Text),
-    Column("release_date", Text),
-    Column("id_poster", Text)
-
 @router.post(
     "",
     response_model=Media, 
@@ -59,16 +50,16 @@ def create_media(media: Media):
     response_model=Media, 
     description="Update a Media by Id"
 )
-def update_media(poster: Media, id: int):
+def update_media(media: Media, id: int):
     conn.execute(
         medias.update()
         .values(
-                title=medias.title, 
-                kind=medias.kind,
-                category=medias.category,
-                content=medias.content,
-                release_date=medias.release_date,
-                id_poster=medias.id_poster
+                title=media.title, 
+                kind=media.kind,
+                category=media.category,
+                content=media.content,
+                release_date=media.release_date,
+                id_poster=media.id_poster
                 )
         .where(medias.c.id == id)
     )

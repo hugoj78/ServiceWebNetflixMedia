@@ -1,24 +1,40 @@
-version: '3.3'
+version: '3.8'
 services:
-  db:
+  db_media:
     image: mysql:5.7
     restart: always
     environment:
-      MYSQL_DATABASE: 'db'
+      MYSQL_DATABASE: 'db_media'
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
+      MYSQL_TCP_PORT: 3309
     ports:
-      - '3306:3306'
+      - '3309:3309'
     expose:
-      - '3306'
+      - '3309'
     volumes:
-      - my-db-media:/var/lib/mysqlmedia
+      - my-db_media:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
   web:
     build: .
     environment:
-      DB_URI: "mysql+pymysql://user:password@db:3306/db"
+      DB_URI: "mysql+pymysql://user:password@db_media:3309/db_media"
+      POSTER_URL: "http://0.0.0.0:8091"
+      COMPTE_URL: "http://0.0.0.0:8090"
     ports :
-      - 5000:5000
+      - 8092:8092
+    networks:
+      - default
+    depends_on:
+      db_media:
+        condition: service_healthy
+
 volumes:
-  my-db-media:
+  my-db_media:
+
+networks:
+  default:
