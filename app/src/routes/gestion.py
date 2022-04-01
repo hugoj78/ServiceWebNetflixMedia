@@ -43,10 +43,7 @@ def get_gestion_medias(id: int, category: str, moment: str, kind: str):
 
                 urlPoster = f"{urlOSPoster}/posters/{media['id']}/{moment}"
 
-                print("123")
                 myPoster = requests.get(url=urlPoster, headers=headers).json()
-
-                print(myPoster)
 
                 toAppend = {
                     "id": media['id'],
@@ -61,13 +58,9 @@ def get_gestion_medias(id: int, category: str, moment: str, kind: str):
                     "id_poster": media['id_poster'],
                     "poster": myPoster[f"{moment}_poster"]
                 }
-                print("2")
-                print(toAppend)
 
                 myData.append(toAppend)
 
-
-            print(myData)
             return myData
 
         else:
