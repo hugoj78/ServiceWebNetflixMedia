@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Table, ForeignKey
-from sqlalchemy.sql.sqltypes import Integer, String, Text
+from sqlalchemy.sql.sqltypes import Integer, String, Text, Boolean, Enum
 from config.db import meta, engine
+from src.models.StatusEnum import StatusEnum
 
 medias = Table(
     "medias",
@@ -12,7 +13,9 @@ medias = Table(
     Column("content", Text),
     Column("release_date", Text),
     Column("country", Text),
-    Column("id_poster", Text)
+    Column("description", Text),
+    Column("status", Enum(StatusEnum)),
+    Column("id_poster", String(70), unique=True)
 )
 
 meta.create_all(engine)

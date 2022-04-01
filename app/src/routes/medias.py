@@ -6,6 +6,7 @@ from typing import List, Union
 from starlette.status import HTTP_204_NO_CONTENT
 from sqlalchemy import func, select, and_
 import json
+from src.models.StatusEnum import StatusEnum
 
 router = APIRouter(
     prefix="/medias",
@@ -34,41 +35,50 @@ def get_media(id: str):
     response_model=List[Media],
     description="Get all Media by category, kind and country",
 )
-def get_media_by_categorie_kind_country(category: str, country: str, kind: str):
+def get_media_actif_by_categorie_kind_country(category: str, country: str, kind: str):
     if(category == "all" and country == "all" and kind == "all"):
-        return conn.execute(medias.select()).fetchall();
+        return conn.execute(medias.select()
+                .where(medias.c.status == StatusEnum.ACTIVED.value)
+                ).fetchall();
     elif(category != "all" and country == "all" and kind == "all") :
         return conn.execute(medias.select()
                 .where(medias.c.category == category)
+                .where(medias.c.status == StatusEnum.ACTIVED.value)
                 ).fetchall()
     elif(category == "all" and country != "all" and kind == "all") :
         return conn.execute(medias.select()
                 .where(medias.c.country == country)
+                .where(medias.c.status == StatusEnum.ACTIVED.value)
                 ).fetchall()
     elif(category == "all" and country == "all" and kind != "all") :
         return conn.execute(medias.select()
                 .where(medias.c.kind == kind)
+                .where(medias.c.status == StatusEnum.ACTIVED.value)
                 ).fetchall()
     elif(category != "all" and country != "all" and kind == "all") :
         return conn.execute(medias.select()
                 .where(medias.c.category == category)
                 .where(medias.c.country == country)
+                .where(medias.c.status == StatusEnum.ACTIVED.value)
                 ).fetchall()
     elif(category == "all" and country != "all" and kind != "all") :
         return conn.execute(medias.select()
                 .where(medias.c.country == country)
                 .where(medias.c.kind == kind)
+                .where(medias.c.status == StatusEnum.ACTIVED.value)
                 ).fetchall()
     elif(category != "all" and country == "all" and kind != "all") :
         return conn.execute(medias.select()
                 .where(medias.c.category == country)
                 .where(medias.c.kind == kind)
+                .where(medias.c.status == StatusEnum.ACTIVED.value)
                 ).fetchall()
     else:
         return conn.execute(medias.select()
                 .where(medias.c.category == category)
                 .where(medias.c.country == country)
                 .where(medias.c.kind == kind)
+                .where(medias.c.status == StatusEnum.ACTIVED.value)
                 ).fetchall()
 
 @router.post(
@@ -83,6 +93,8 @@ def create_media(media: Media):
         "content": media.content,
         "release_date": media.release_date,
         "country": media.country,
+        "description" : media.description,
+        "status": media.status,
         "id_poster": media.id_poster
         }
     result = conn.execute(medias.insert().values(new_media))
@@ -103,6 +115,8 @@ def update_media(media: Media, id: int):
                 content=media.content,
                 release_date=media.release_date,
                 country=media.country,
+                description=media.description,
+                status=media.status,
                 id_poster=media.id_poster
                 )
         .where(medias.c.id == id)

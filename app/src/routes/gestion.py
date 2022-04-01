@@ -2,13 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status, FastAPI
 import requests
 from config.db import conn
 from src.models.medias import medias
-from src.schemas.medias import Media
-from src.routes.medias import get_medias, get_media_by_categorie_kind_country
+from src.schemas.medias import Media, MediaUpdateDescription
+from src.routes.medias import get_medias, get_media_actif_by_categorie_kind_country
 from typing import List, Union
-from starlette.status import HTTP_204_NO_CONTENT
+from starlette.status import HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED
 from sqlalchemy import func, select, and_
 import json
 import os
+from src.models.StatusEnum import StatusEnum
 
 router = APIRouter(
     prefix="/gestion",
@@ -33,14 +34,19 @@ def get_gestion_medias(id: int, category: str, moment: str, kind: str):
         if (request['status'] == 'ACTIF'):
             myData = []
             
-            myMediaToReturn = get_media_by_categorie_kind_country(category, request['country'], kind)
+            myMediaToReturn = get_media_actif_by_categorie_kind_country(category, request['country'], kind)
             urlOSPoster = os.environ['POSTER_URL']
+
+            print("1")
 
             for media in myMediaToReturn:
 
-                urlPoster = f"{urlOSPoster}/posters/{media['id_poster']}/{moment}"
+                urlPoster = f"{urlOSPoster}/posters/{media['id']}/{moment}"
 
+                print("123")
                 myPoster = requests.get(url=urlPoster, headers=headers).json()
+
+                print(myPoster)
 
                 toAppend = {
                     "id": media['id'],
@@ -50,18 +56,91 @@ def get_gestion_medias(id: int, category: str, moment: str, kind: str):
                     "content": media['content'],
                     "release_date": media['release_date'],
                     "country": media['country'],
+                    "description": media['description'],
+                    "status": media['status'],
                     "id_poster": media['id_poster'],
                     "poster": myPoster[f"{moment}_poster"]
                 }
+                print("2")
+                print(toAppend)
 
                 myData.append(toAppend)
 
+
+            print(myData)
             return myData
 
         else:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=HTTP_401_UNAUTHORIZED,
                 detail="Incorrect User Statut"
+            )
+    except Exception as e:
+        print(e)
+
+
+@router.put(
+    "/{id}/{admin}",
+    description="Update a Media by Id if Admin"
+)
+def update_media_description(media: MediaUpdateDescription, id: str, admin: str):
+
+    headers = {'accept': 'application/json'}
+    url = os.environ['COMPTE_URL']
+    base_url = f"{url}/users/{admin}"
+
+    try:
+        request = requests.get(url=base_url, headers=headers).json()
+
+        print(request['admin'])
+
+        if (request['admin']):
+
+            conn.execute(
+                medias.update()
+                .values( 
+                    description=media.description
+                )
+                .where(medias.c.id == id)
+            )
+            return "Update success"
+        else:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED,
+                detail="Incorrect User Admin statut"
+            )
+    except Exception as e:
+        print(e)
+
+@router.delete(
+    "/{id}/{admin}",
+    description="Update a Media by Id if Admin"
+)
+def delete_media_description(id: str, admin: str):
+
+    headers = {'accept': 'application/json'}
+    url = os.environ['COMPTE_URL']
+    base_url = f"{url}/users/{admin}"
+
+    try:
+        request = requests.get(url=base_url, headers=headers).json()
+
+        print(request['admin'])
+
+        if (request['admin']):
+
+            conn.execute(
+                medias.update()
+                .values( 
+                    status=StatusEnum.DELETED.value
+                )
+                .where(medias.c.id == id)
+            )
+            return "Delete success"
+        else:
+            raise HTTPException(
+                status_code=HTTP_401_UNAUTHORIZED,
+                detail="Incorrect User Admin statut"
             )
     except Exception as e:
         print(e)
