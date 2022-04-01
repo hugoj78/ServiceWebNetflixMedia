@@ -8,4 +8,5 @@ class Media(BaseModel):
     category: str
     content: str
     release_date: str
+    country: str
     id_poster: int

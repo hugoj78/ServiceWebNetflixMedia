@@ -25,7 +25,7 @@ services:
     build: .
     environment:
       DB_URI: "mysql+pymysql://user:password@db_media:3309/db_media"
-      POSTER_URL: "http://http://serviceweb_netflix_poster-web-1:8091"
+      POSTER_URL: "http://serviceweb_netflix_poster-web-1:8091"
       COMPTE_URL: "http://serviceweb_netflix_compte-web-1:8090"
     ports :
       - 8092:8092

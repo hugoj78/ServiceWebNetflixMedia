@@ -29,6 +29,48 @@ def get_medias():
 def get_media(id: str):
     return conn.execute(medias.select().where(medias.c.id == id)).first()
 
+@router.get(
+    "/{category}/{country}/{kind)",
+    response_model=List[Media],
+    description="Get all Media by category, kind and country",
+)
+def get_media_by_categorie_kind_country(category: str, country: str, kind: str):
+    if(category == "all" and country == "all" and kind == "all"):
+        return conn.execute(medias.select()).fetchall();
+    elif(category != "all" and country == "all" and kind == "all") :
+        return conn.execute(medias.select()
+                .where(medias.c.category == category)
+                ).fetchall()
+    elif(category == "all" and country != "all" and kind == "all") :
+        return conn.execute(medias.select()
+                .where(medias.c.country == country)
+                ).fetchall()
+    elif(category == "all" and country == "all" and kind != "all") :
+        return conn.execute(medias.select()
+                .where(medias.c.kind == kind)
+                ).fetchall()
+    elif(category != "all" and country != "all" and kind == "all") :
+        return conn.execute(medias.select()
+                .where(medias.c.category == category)
+                .where(medias.c.country == country)
+                ).fetchall()
+    elif(category == "all" and country != "all" and kind != "all") :
+        return conn.execute(medias.select()
+                .where(medias.c.country == country)
+                .where(medias.c.kind == kind)
+                ).fetchall()
+    elif(category != "all" and country == "all" and kind != "all") :
+        return conn.execute(medias.select()
+                .where(medias.c.category == country)
+                .where(medias.c.kind == kind)
+                ).fetchall()
+    else:
+        return conn.execute(medias.select()
+                .where(medias.c.category == category)
+                .where(medias.c.country == country)
+                .where(medias.c.kind == kind)
+                ).fetchall()
+
 @router.post(
     "",
     response_model=Media, 
@@ -40,6 +82,7 @@ def create_media(media: Media):
         "category": media.category,
         "content": media.content,
         "release_date": media.release_date,
+        "country": media.country,
         "id_poster": media.id_poster
         }
     result = conn.execute(medias.insert().values(new_media))
@@ -59,6 +102,7 @@ def update_media(media: Media, id: int):
                 category=media.category,
                 content=media.content,
                 release_date=media.release_date,
+                country=media.country,
                 id_poster=media.id_poster
                 )
         .where(medias.c.id == id)

@@ -11,6 +11,7 @@ medias = Table(
     Column("category", Text),
     Column("content", Text),
     Column("release_date", Text),
+    Column("country", Text),
     Column("id_poster", Text)
 )
 
