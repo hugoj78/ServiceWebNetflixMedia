@@ -54,14 +54,7 @@ def get_gestion_medias(id: int, category: str, moment: str, kind: str):
                     "poster": myPoster[f"{moment}_poster"]
                 }
 
-                print(toAppend)
-                print("BEFORE")
-                print(myData)
-
                 myData.append(toAppend)
-
-                print("AFTER")
-                print(myData)
 
             return myData
 
